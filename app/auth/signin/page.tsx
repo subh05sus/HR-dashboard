@@ -119,12 +119,7 @@ export default function SignInPage() {
           <div className="mt-6 p-4 bg-muted rounded-lg">
             <p className="text-sm font-medium mb-2">Demo Credentials:</p>
             <div className="text-xs space-y-1">
-              <p>
-                <strong>Admin:</strong> admin@hr.com / admin123
-              </p>
-              <p>
-                <strong>User:</strong> user@hr.com / user123
-              </p>
+              <p>admin@hr.com / admin123</p>
             </div>
           </div>
         </CardContent>

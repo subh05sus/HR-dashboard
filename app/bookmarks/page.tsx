@@ -16,12 +16,16 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   BookmarkX,
   Star,
-  TrendingUp,
   Trash2,
   CheckCircle,
   Eye,
+  TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
+import {
+  generateStarRatingData,
+  getDepartmentColor,
+} from "@/lib";
 
 export default function BookmarksPage() {
   const { users, bookmarks, removeBookmark } = useUserStore();
@@ -42,30 +46,11 @@ export default function BookmarksPage() {
     // In a real app, this would trigger an API call
   };
 
+  // Use the generateStarRatingData utility to render stars
   const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, index) => (
-      <Star
-        key={index}
-        className={`h-4 w-4 ${
-          index < rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-        }`}
-      />
+    return generateStarRatingData(rating).map((star) => (
+      <Star key={star.key} className={star.className} />
     ));
-  };
-
-  const getDepartmentColor = (department: string) => {
-    const colors = {
-      HR: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
-      Engineering:
-        "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-      Sales:
-        "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300",
-      Support:
-        "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300",
-    };
-    return (
-      colors[department as keyof typeof colors] || "bg-gray-100 text-gray-800"
-    );
   };
 
   if (bookmarkedUsers.length === 0 && removedUsers.length === 0) {

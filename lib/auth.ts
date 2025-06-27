@@ -22,17 +22,6 @@ export const authOptions: NextAuthOptions = {
             role: "admin",
           };
         }
-        if (
-          credentials?.email === "user@hr.com" &&
-          credentials?.password === "user123"
-        ) {
-          return {
-            id: "2",
-            email: "user@hr.com",
-            name: "HR User",
-            role: "user",
-          };
-        }
         return null;
       },
     }),

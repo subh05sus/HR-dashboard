@@ -9,7 +9,7 @@ import { Pagination } from "@/components/pagination";
 import { useUserStore } from "@/store/useUserStore";
 import { useSearch } from "@/contexts/search-context";
 import { useSessionPersistence } from "@/hooks/useSessionPersistence";
-import { Loader2, Star } from "lucide-react";
+import { Loader2, Star, BarChart3, Bookmark, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -23,7 +23,11 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { TrendingUp, BarChart3, Bookmark } from "lucide-react";
+import {
+  DEPARTMENTS,
+  generateDepartmentStats,
+  generateBarChartData,
+} from "@/lib";
 
 ChartJS.register(
   CategoryScale,
@@ -65,61 +69,23 @@ export default function HomePage() {
     }
   }, [session, users.length, setUsers]);
 
-  // Add after the existing useEffect
-  const analyticsData = useMemo(() => {
-    const departments = ["HR", "Engineering", "Sales", "Support"];
-    const departmentStats = departments.map((dept) => {
-      const deptUsers = users.filter((user) => user.department === dept);
-      const avgRating =
-        deptUsers.length > 0
-          ? deptUsers.reduce((sum, user) => sum + user.rating, 0) /
-            deptUsers.length
-          : 0;
-      return {
-        department: dept,
-        avgRating: Number(avgRating.toFixed(1)),
-        userCount: deptUsers.length,
-      };
-    });
+  // Calculate department statistics
+  const departmentStats = useMemo(
+    () => generateDepartmentStats(users),
+    [users]
+  );
 
-    return {
-      departmentStats,
-      chartData: {
-        labels: departmentStats.map((stat) => stat.department),
-        datasets: [
-          {
-            label: "Average Rating",
-            data: departmentStats.map((stat) => stat.avgRating),
-            backgroundColor: [
-              "rgba(59, 130, 246, 0.8)",
-              "rgba(34, 197, 94, 0.8)",
-              "rgba(168, 85, 247, 0.8)",
-              "rgba(249, 115, 22, 0.8)",
-            ],
-            borderColor: [
-              "rgba(59, 130, 246, 1)",
-              "rgba(34, 197, 94, 1)",
-              "rgba(168, 85, 247, 1)",
-              "rgba(249, 115, 22, 1)",
-            ],
-            borderWidth: 2,
-            borderRadius: 6,
-          },
-        ],
-      },
-      chartOptions: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          title: { display: false },
-        },
-        scales: {
-          y: { beginAtZero: true, max: 5, ticks: { stepSize: 1 } },
-          x: { ticks: { font: { size: 10 } } },
-        },
-      },
-    };
+  // Generate chart data
+  const chartData = useMemo(
+    () => generateBarChartData(departmentStats),
+    [departmentStats]
+  );
+
+  // Calculate average rating as a number (not string)
+  const averageRating = useMemo(() => {
+    if (!users.length) return 0;
+    const totalRating = users.reduce((sum, user) => sum + user.rating, 0);
+    return Number((totalRating / users.length).toFixed(1));
   }, [users]);
 
   if (status === "loading" || loading) {
@@ -188,9 +154,11 @@ export default function HomePage() {
             <CardTitle className="text-sm font-medium">Departments</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">4</div>
+            <div className="text-2xl font-bold">
+              {DEPARTMENTS.length}
+            </div>
             <p className="text-xs text-muted-foreground">
-              HR, Engineering, Sales, Support
+              {DEPARTMENTS.join(", ")}
             </p>
           </CardContent>
         </Card>
@@ -201,12 +169,7 @@ export default function HomePage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {users.length > 0
-                ? (
-                    users.reduce((sum, user) => sum + user.rating, 0) /
-                    users.length
-                  ).toFixed(1)
-                : "0"}
+              {averageRating > 0 ? averageRating : "N/A"}
             </div>
             <p className="text-xs text-muted-foreground">Out of 5 stars</p>
           </CardContent>
@@ -249,10 +212,18 @@ export default function HomePage() {
           </CardHeader>
           <CardContent>
             <div className="h-[200px]">
-              <Bar
-                data={analyticsData.chartData}
-                options={analyticsData.chartOptions}
-              />
+              <Bar data={chartData} options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: { display: false },
+                  title: { display: false },
+                },
+                scales: {
+                  y: { beginAtZero: true, max: 5, ticks: { stepSize: 1 } },
+                  x: { ticks: { font: { size: 10 } } },
+                },
+              }} />
             </div>
           </CardContent>
         </Card>

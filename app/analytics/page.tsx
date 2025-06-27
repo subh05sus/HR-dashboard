@@ -23,6 +23,19 @@ import {
 } from "chart.js";
 import { Bar, Pie, Line } from "react-chartjs-2";
 import { TrendingUp, Users, Star, Bookmark } from "lucide-react";
+import {
+  generateBookmarkTrends,
+  generateDepartmentStats,
+  generateDepartmentDistribution,
+  generateBarChartData,
+  generatePieChartData,
+  generateLineChartData,
+  barChartOptions,
+  pieChartOptions,
+  lineChartOptions,
+} from "@/lib";
+
+// No longer needed, we're using more specific types
 
 ChartJS.register(
   CategoryScale,
@@ -36,204 +49,44 @@ ChartJS.register(
   LineElement
 );
 
-// Mock bookmark trends data (monthly data for the past 6 months)
-const generateBookmarkTrends = () => {
-  const months = [
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  return months.map((month) => ({
-    month,
-    bookmarks: Math.floor(Math.random() * 15) + 5, // Random bookmarks between 5-20
-    newBookmarks: Math.floor(Math.random() * 8) + 2, // Random new bookmarks between 2-10
-  }));
-};
+// Using generateBookmarkTrends from lib
 
 export default function AnalyticsPage() {
   const { users, bookmarks } = useUserStore();
   const bookmarkTrends = useMemo(() => generateBookmarkTrends(), []);
-
-  // Calculate department ratings
-  const departmentStats = useMemo(() => {
-    const departments = ["HR", "Engineering", "Sales", "Support"];
-    return departments.map((dept) => {
-      const deptUsers = users.filter((user) => user.department === dept);
-      const avgRating =
-        deptUsers.length > 0
-          ? deptUsers.reduce((sum, user) => sum + user.rating, 0) /
-            deptUsers.length
-          : 0;
-      return {
-        department: dept,
-        avgRating: Number(avgRating.toFixed(1)),
-        userCount: deptUsers.length,
-      };
-    });
-  }, [users]);
-
+  // Calculate department metrics using utility functions
+  const departmentStats = useMemo(
+    () => generateDepartmentStats(users),
+    [users]
+  );
   // Department distribution for pie chart
-  const departmentDistribution = useMemo(() => {
-    const departments = ["HR", "Engineering", "Sales", "Support"];
-    return departments.map((dept) => ({
-      department: dept,
-      count: users.filter((user) => user.department === dept).length,
-    }));
+  const departmentDistribution = useMemo(
+    () => generateDepartmentDistribution(users),
+    [users]
+  );
+
+  // Generate chart data using our utility functions
+  const barChartData = useMemo(
+    () => generateBarChartData(departmentStats),
+    [departmentStats]
+  );
+
+  const pieChartData = useMemo(
+    () => generatePieChartData(departmentDistribution),
+    [departmentDistribution]
+  );
+
+  const lineChartData = useMemo(
+    () => generateLineChartData(bookmarkTrends),
+    [bookmarkTrends]
+  );
+
+  // Calculate average rating
+  const avgRating = useMemo(() => {
+    if (!users.length) return "0";
+    const totalRating = users.reduce((sum, user) => sum + user.rating, 0);
+    return (totalRating / users.length).toFixed(1);
   }, [users]);
-
-  // Chart configurations
-  const barChartData = {
-    labels: departmentStats.map((stat) => stat.department),
-    datasets: [
-      {
-        label: "Average Rating",
-        data: departmentStats.map((stat) => stat.avgRating),
-        backgroundColor: [
-          "rgba(59, 130, 246, 0.8)", // Blue for HR
-          "rgba(34, 197, 94, 0.8)", // Green for Engineering
-          "rgba(168, 85, 247, 0.8)", // Purple for Sales
-          "rgba(249, 115, 22, 0.8)", // Orange for Support
-        ],
-        borderColor: [
-          "rgba(59, 130, 246, 1)",
-          "rgba(34, 197, 94, 1)",
-          "rgba(168, 85, 247, 1)",
-          "rgba(249, 115, 22, 1)",
-        ],
-        borderWidth: 2,
-        borderRadius: 8,
-      },
-    ],
-  };
-
-  const barChartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        display: false,
-      },
-      title: {
-        display: true,
-        text: "Average Rating by Department",
-        font: {
-          size: 16,
-          weight: "bold" as const,
-        },
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        max: 5,
-        ticks: {
-          stepSize: 1,
-        },
-      },
-    },
-  };
-
-  const pieChartData = {
-    labels: departmentDistribution.map((dept) => dept.department),
-    datasets: [
-      {
-        data: departmentDistribution.map((dept) => dept.count),
-        backgroundColor: [
-          "rgba(59, 130, 246, 0.8)",
-          "rgba(34, 197, 94, 0.8)",
-          "rgba(168, 85, 247, 0.8)",
-          "rgba(249, 115, 22, 0.8)",
-        ],
-        borderColor: [
-          "rgba(59, 130, 246, 1)",
-          "rgba(34, 197, 94, 1)",
-          "rgba(168, 85, 247, 1)",
-          "rgba(249, 115, 22, 1)",
-        ],
-        borderWidth: 2,
-      },
-    ],
-  };
-
-  const pieChartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "bottom" as const,
-      },
-      title: {
-        display: true,
-        text: "Employee Distribution by Department",
-        font: {
-          size: 16,
-          weight: "bold" as const,
-        },
-      },
-    },
-  };
-
-  const lineChartData = {
-    labels: bookmarkTrends.map((trend) => trend.month),
-    datasets: [
-      {
-        label: "Total Bookmarks",
-        data: bookmarkTrends.map((trend) => trend.bookmarks),
-        borderColor: "rgba(59, 130, 246, 1)",
-        backgroundColor: "rgba(59, 130, 246, 0.1)",
-        borderWidth: 3,
-        fill: true,
-        tension: 0.4,
-        pointBackgroundColor: "rgba(59, 130, 246, 1)",
-        pointBorderColor: "#fff",
-        pointBorderWidth: 2,
-        pointRadius: 6,
-      },
-      {
-        label: "New Bookmarks",
-        data: bookmarkTrends.map((trend) => trend.newBookmarks),
-        borderColor: "rgba(34, 197, 94, 1)",
-        backgroundColor: "rgba(34, 197, 94, 0.1)",
-        borderWidth: 3,
-        fill: true,
-        tension: 0.4,
-        pointBackgroundColor: "rgba(34, 197, 94, 1)",
-        pointBorderColor: "#fff",
-        pointBorderWidth: 2,
-        pointRadius: 6,
-      },
-    ],
-  };
-
-  const lineChartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "top" as const,
-      },
-      title: {
-        display: true,
-        text: "Bookmark Trends (Last 6 Months)",
-        font: {
-          size: 16,
-          weight: "bold" as const,
-        },
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          stepSize: 2,
-        },
-      },
-    },
-  };
-
-  const totalRating = users.reduce((sum, user) => sum + user.rating, 0);
-  const avgRating =
-    users.length > 0 ? (totalRating / users.length).toFixed(1) : "0";
 
   return (
     <div className="space-y-6">

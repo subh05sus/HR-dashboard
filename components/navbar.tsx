@@ -14,13 +14,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { LogOut, User } from "lucide-react";
-
-const navigation = [
-  { name: "Home", href: "/" },
-  { name: "Bookmarks", href: "/bookmarks" },
-  { name: "Analytics", href: "/analytics" },
-];
+import { LogOut } from "lucide-react";
+import { NAVIGATION_ITEMS } from "@/lib/navigation";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -61,7 +56,7 @@ export function Navbar() {
             </div>
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-4">
-                {navigation.map((item) => (
+                {NAVIGATION_ITEMS.map((item) => (
                   <Link
                     key={item.name}
                     href={item.href}
@@ -113,12 +108,6 @@ export function Navbar() {
                     )}
                   </div>
                 </div>
-                <DropdownMenuItem asChild>
-                  <Link href="/profile">
-                    <User className="mr-2 h-4 w-4" />
-                    Profile
-                  </Link>
-                </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Sign out
@@ -131,7 +120,7 @@ export function Navbar() {
         {/* Mobile menu */}
         <div className="md:hidden">
           <div className="space-y-1 px-2 pb-3 pt-2 sm:px-3">
-            {navigation.map((item) => (
+            {NAVIGATION_ITEMS.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}

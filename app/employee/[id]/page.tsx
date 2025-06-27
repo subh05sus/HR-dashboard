@@ -18,48 +18,20 @@ import {
   Star,
   Mail,
   Phone,
-  MapPin,
-  Calendar,
   Briefcase,
   TrendingUp,
+  Calendar,
+  MapPin,
 } from "lucide-react";
-import { motion } from "framer-motion";
 import { toast } from "sonner";
-
-// Mock data generators (same as before)
-const generateBio = (name: string) => {
-  const bios = [
-    `${name} is a dedicated professional with over 5 years of experience in their field. Known for exceptional problem-solving skills and team collaboration.`,
-    `${name} brings innovative thinking and strong leadership qualities to every project. Passionate about continuous learning and professional development.`,
-    `${name} is a results-driven individual with a proven track record of exceeding expectations. Excellent communication skills and attention to detail.`,
-    `${name} combines technical expertise with creative problem-solving. A reliable team player who thrives in fast-paced environments.`,
-  ];
-  return bios[Math.floor(Math.random() * bios.length)];
-};
-
-const generatePerformanceHistory = () => {
-  return Array.from({ length: 6 }, (_, index) => ({
-    period: `Q${(index % 4) + 1} ${2024 - Math.floor(index / 4)}`,
-    rating: Math.floor(Math.random() * 5) + 1,
-    feedback: [
-      "Excellent performance and exceeded targets",
-      "Strong team collaboration and leadership",
-      "Innovative solutions and problem-solving",
-      "Consistent delivery and reliability",
-      "Great communication and client relations",
-    ][Math.floor(Math.random() * 5)],
-  }));
-};
-
-const generateProjects = () => {
-  const projects = [
-    { name: "Customer Portal Redesign", status: "Completed", progress: 100 },
-    { name: "Mobile App Development", status: "In Progress", progress: 75 },
-    { name: "Database Migration", status: "Planning", progress: 25 },
-    { name: "API Integration", status: "Completed", progress: 100 },
-  ];
-  return projects.slice(0, Math.floor(Math.random() * 3) + 2);
-};
+import { motion } from "framer-motion";
+import {
+  generateBio,
+  generatePerformanceHistory,
+  generateProjects,
+  getDepartmentColor,
+  generateStarRatingData,
+} from "@/lib";
 
 export default function EmployeeDetailPage() {
   const params = useParams();
@@ -100,28 +72,12 @@ export default function EmployeeDetailPage() {
   const performanceHistory = generatePerformanceHistory();
   const projects = generateProjects();
 
-  const getDepartmentColor = (department: string) => {
-    const colors = {
-      HR: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
-      Engineering:
-        "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-      Sales:
-        "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300",
-      Support:
-        "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300",
-    };
-    return (
-      colors[department as keyof typeof colors] || "bg-gray-100 text-gray-800"
-    );
-  };
-
+  // Use the generateStarRatingData utility to render stars
   const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, index) => (
+    return generateStarRatingData(rating).map((star) => (
       <Star
-        key={index}
-        className={`h-4 w-4 ${
-          index < rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-        }`}
+        key={star.key}
+        className={star.className}
       />
     ));
   };
