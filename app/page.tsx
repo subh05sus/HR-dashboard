@@ -3,11 +3,14 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserCard } from "@/components/user-card";
+import { SearchFilters } from "@/components/search-filters";
 import { useUserStore } from "@/store/useUserStore";
+import { useSearch } from "@/hooks/useSearch";
 import { Loader2 } from "lucide-react";
 
 export default function HomePage() {
   const { users, setUsers } = useUserStore();
+  const { filteredUsers } = useSearch();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -129,12 +132,14 @@ export default function HomePage() {
         </Card>
       </div>
 
+      <SearchFilters />
+
       <div>
         <h2 className="text-2xl font-bold tracking-tight mb-4">
           Employee Directory
         </h2>
-        <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ">
-          {users.map((user) => (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {filteredUsers.map((user) => (
             <UserCard key={user.id} user={user} />
           ))}
         </div>
