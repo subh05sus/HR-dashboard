@@ -121,3 +121,9 @@ This application can be easily deployed to Vercel:
 2. Import your project to [Vercel](https://vercel.com/new)
 3. Set the required environment variables
 4. Deploy
+
+## Screenshots
+
+![image](https://github.com/user-attachments/assets/cbe86926-aade-4e61-a4bd-013c6bbf1f9f)
+![image](https://github.com/user-attachments/assets/8fa64453-225b-44cb-8e43-d36ab3da79da)
+![image](https://github.com/user-attachments/assets/5cc701c9-6d93-48a9-9521-e042cfc3e519)
