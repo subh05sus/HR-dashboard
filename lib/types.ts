@@ -1,9 +1,9 @@
 /**
  * User type definition for the HR Dashboard
  * This matches the type defined in useUserStore
- * We use Record<string, any> to be more compatible with useUserStore type
+ * We use Record<string, unknown> to be more compatible with useUserStore type
  */
-export type User = Record<string, any> & {
+export type User = Record<string, unknown> & {
   id: number;
   firstName: string;
   lastName: string;
