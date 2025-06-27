@@ -1,6 +1,67 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { UserCard } from "@/components/user-card";
+import { useUserStore } from "@/store/useUserStore";
+import { Loader2 } from "lucide-react";
 
 export default function HomePage() {
+  const { users, setUsers } = useUserStore();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("https://dummyjson.com/users?limit=20");
+        if (!response.ok) {
+          throw new Error("Failed to fetch users");
+        }
+        const data = await response.json();
+        setUsers(data.users);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Only fetch if we don't have users yet
+    if (users.length === 0) {
+      fetchUsers();
+    } else {
+      setLoading(false);
+    }
+  }, [users.length, setUsers]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex items-center space-x-2">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span>Loading employees...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-destructive">Error</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">{error}</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -21,50 +82,62 @@ export default function HomePage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,234</div>
+            <div className="text-2xl font-bold">{users.length}</div>
+            <p className="text-xs text-muted-foreground">Active employees</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Departments</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">4</div>
             <p className="text-xs text-muted-foreground">
-              +20.1% from last month
+              HR, Engineering, Sales, Support
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">New Hires</CardTitle>
+            <CardTitle className="text-sm font-medium">Avg Rating</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">45</div>
-            <p className="text-xs text-muted-foreground">
-              +12% from last month
-            </p>
+            <div className="text-2xl font-bold">
+              {users.length > 0
+                ? (
+                    users.reduce((sum, user) => sum + user.rating, 0) /
+                    users.length
+                  ).toFixed(1)
+                : "0"}
+            </div>
+            <p className="text-xs text-muted-foreground">Out of 5 stars</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Open Positions
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Bookmarked</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">23</div>
-            <p className="text-xs text-muted-foreground">-5% from last month</p>
+            <div className="text-2xl font-bold">
+              {useUserStore.getState().bookmarks.length}
+            </div>
+            <p className="text-xs text-muted-foreground">Saved employees</p>
           </CardContent>
         </Card>
+      </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Attendance Rate
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">94.2%</div>
-            <p className="text-xs text-muted-foreground">
-              +2.1% from last month
-            </p>
-          </CardContent>
-        </Card>
+      <div>
+        <h2 className="text-2xl font-bold tracking-tight mb-4">
+          Employee Directory
+        </h2>
+        <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ">
+          {users.map((user) => (
+            <UserCard key={user.id} user={user} />
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -1,76 +1,50 @@
+"use client";
+
+import { useUserStore } from "@/store/useUserStore";
+import { UserCard } from "@/components/user-card";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Bookmark, ExternalLink } from "lucide-react";
-
-const bookmarks = [
-  {
-    id: 1,
-    title: "Employee Handbook",
-    description: "Complete guide to company policies and procedures",
-    url: "#",
-    category: "Documentation",
-  },
-  {
-    id: 2,
-    title: "Performance Review Template",
-    description: "Standard template for quarterly performance reviews",
-    url: "#",
-    category: "Templates",
-  },
-  {
-    id: 3,
-    title: "Payroll System",
-    description: "Access to the company payroll management system",
-    url: "#",
-    category: "Systems",
-  },
-  {
-    id: 4,
-    title: "Training Resources",
-    description: "Collection of training materials and courses",
-    url: "#",
-    category: "Learning",
-  },
-];
+import { BookmarkX } from "lucide-react";
 
 export default function BookmarksPage() {
+  const { users, bookmarks } = useUserStore();
+
+  const bookmarkedUsers = users.filter((user) => bookmarks.includes(user.id));
+
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Bookmarks</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Bookmarked Employees
+        </h1>
         <p className="text-muted-foreground">
-          Quick access to your frequently used HR resources and tools.
+          Your saved employees for quick access and reference.
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {bookmarks.map((bookmark) => (
-          <Card
-            key={bookmark.id}
-            className="hover:shadow-md transition-shadow cursor-pointer"
-          >
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex items-center space-x-2">
-                  <Bookmark className="h-4 w-4 text-primary" />
-                  <CardTitle className="text-lg">{bookmark.title}</CardTitle>
-                </div>
-                <ExternalLink className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <CardDescription>{bookmark.description}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Badge variant="secondary">{bookmark.category}</Badge>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {bookmarkedUsers.length === 0 ? (
+        <Card className="w-full max-w-md mx-auto">
+          <CardHeader className="text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+              <BookmarkX className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <CardTitle>No bookmarks yet</CardTitle>
+            <CardDescription>
+              Start bookmarking employees from the home page to see them here.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      ) : (
+        <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ">
+          {bookmarkedUsers.map((user) => (
+            <UserCard key={user.id} user={user} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
