@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
 import { useUserStore } from "@/store/useUserStore";
+import { useSessionPersistence } from "@/hooks/useSessionPersistence";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +24,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 // Mock data generators (same as before)
 const generateBio = (name: string) => {
@@ -61,11 +63,15 @@ const generateProjects = () => {
 
 export default function EmployeeDetailPage() {
   const params = useParams();
-  const { users } = useUserStore();
+  const { users, addFeedback, getFeedbackForUser } = useUserStore();
+  const { session } = useSessionPersistence();
   const [feedback, setFeedback] = useState("");
+  const [feedbackRating, setFeedbackRating] = useState(0);
 
   const userId = Number.parseInt(params.id as string);
   const user = users.find((u) => u.id === userId);
+
+  const userFeedback = getFeedbackForUser(userId);
 
   if (!user) {
     return (
@@ -122,8 +128,17 @@ export default function EmployeeDetailPage() {
 
   const handleFeedbackSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Feedback submitted successfully!");
+
+    addFeedback({
+      userId: user.id,
+      rating: feedbackRating,
+      comment: feedback.trim(),
+      author: session?.user?.name || session?.user?.email || "Anonymous",
+    });
+
+    toast("Feedback submitted successfully!");
     setFeedback("");
+    setFeedbackRating(0);
   };
 
   const tabs = [
@@ -234,29 +249,102 @@ export default function EmployeeDetailPage() {
       id: "feedback",
       label: "Feedback",
       content: (
-        <Card>
-          <CardHeader>
-            <CardTitle>Submit Feedback</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleFeedbackSubmit} className="space-y-4">
-              <div>
-                <Label htmlFor="feedback">Your Feedback</Label>
-                <Textarea
-                  id="feedback"
-                  placeholder="Share your feedback about this employee's performance..."
-                  value={feedback}
-                  onChange={(e) => setFeedback(e.target.value)}
-                  className="min-h-[120px] mt-2"
-                  required
-                />
-              </div>
-              <Button type="submit" disabled={!feedback.trim()}>
-                Submit Feedback
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+        <div className="space-y-6">
+          {/* Submit New Feedback */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Submit Feedback</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleFeedbackSubmit} className="space-y-4">
+                <div>
+                  <Label htmlFor="rating">Rating</Label>
+                  <div className="flex items-center space-x-1 mt-2">
+                    {Array.from({ length: 5 }, (_, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => setFeedbackRating(index + 1)}
+                        className="focus:outline-none"
+                      >
+                        <Star
+                          className={`h-6 w-6 transition-colors ${
+                            index < feedbackRating
+                              ? "fill-yellow-400 text-yellow-400"
+                              : "text-gray-300 hover:text-yellow-300"
+                          }`}
+                        />
+                      </button>
+                    ))}
+                    <span className="ml-2 text-sm text-muted-foreground">
+                      {feedbackRating > 0
+                        ? `${feedbackRating}/5`
+                        : "Select rating"}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="feedback">Your Feedback</Label>
+                  <Textarea
+                    id="feedback"
+                    placeholder="Share your feedback about this employee's performance..."
+                    value={feedback}
+                    onChange={(e) => setFeedback(e.target.value)}
+                    className="min-h-[120px] mt-2"
+                    required
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  disabled={!feedback.trim() || feedbackRating === 0}
+                >
+                  Submit Feedback
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          {/* Previous Feedback */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Previous Feedback</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {userFeedback.length > 0 ? (
+                <div className="space-y-4">
+                  {userFeedback.map((fb) => (
+                    <motion.div
+                      key={fb.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="border rounded-lg p-4"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center space-x-1">
+                          {renderStars(fb.rating)}
+                          <span className="text-sm text-muted-foreground ml-2">
+                            ({fb.rating}/5)
+                          </span>
+                        </div>
+                        <span className="text-sm text-muted-foreground">
+                          {new Date(fb.date).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="text-sm">{fb.comment}</p>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        By: {fb.author}
+                      </p>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted-foreground text-center py-4">
+                  No feedback yet.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       ),
     },
   ];

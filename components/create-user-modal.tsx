@@ -23,7 +23,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useUserStore } from "@/store/useUserStore";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Plus, Loader2, CheckCircle, Upload, User } from "lucide-react";
+import { Plus, Loader2, CheckCircle, User, RefreshCcw } from "lucide-react";
 
 interface CreateUserForm {
   firstName: string;
@@ -194,8 +194,8 @@ export function CreateUserModal() {
                     handleInputChange("image", randomAvatar);
                   }}
                 >
-                  <Upload className="mr-1 h-3 w-3" />
-                  Upload
+                  <RefreshCcw className="mr-1 h-3 w-3" />
+                  Random
                 </Button>
               </div>
             </div>
@@ -203,7 +203,7 @@ export function CreateUserModal() {
             <div className="flex-1 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="firstName" className="font-medium">
+                  <Label htmlFor="firstName" className="mb-2 font-medium">
                     First Name
                   </Label>
                   <Input
@@ -227,7 +227,7 @@ export function CreateUserModal() {
                   )}
                 </div>
                 <div>
-                  <Label htmlFor="lastName" className="font-medium">
+                  <Label htmlFor="lastName" className="mb-2 font-medium">
                     Last Name
                   </Label>
                   <Input
@@ -253,7 +253,7 @@ export function CreateUserModal() {
               </div>
 
               <div>
-                <Label htmlFor="email" className="font-medium">
+                <Label htmlFor="email" className="mb-2 font-medium">
                   Email
                 </Label>
                 <Input
@@ -274,7 +274,7 @@ export function CreateUserModal() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="age" className="font-medium">
+                  <Label htmlFor="age" className="mb-2 font-medium">
                     Age
                   </Label>
                   <Input
@@ -293,19 +293,19 @@ export function CreateUserModal() {
                   )}
                 </div>
                 <div>
-                  <Label htmlFor="phone" className="font-medium">
+                  <Label htmlFor="phone" className="mb-2 font-medium">
                     Phone
                   </Label>
-                  <Input
+                    <Input
                     id="phone"
                     value={form.phone}
                     onChange={(e) => handleInputChange("phone", e.target.value)}
-                    placeholder="+1 (555) 123-4567"
+                    placeholder="+91 98765 43210"
                     className={
                       errors.phone ? "border-red-500 ring-1 ring-red-500" : ""
                     }
                     disabled={loading || success}
-                  />
+                    />
                   {errors.phone && (
                     <p className="mt-1 text-xs text-red-500">{errors.phone}</p>
                   )}
@@ -313,7 +313,7 @@ export function CreateUserModal() {
               </div>
 
               <div>
-                <Label htmlFor="department" className="font-medium">
+                <Label htmlFor="department" className="mb-2 font-medium">
                   Department
                 </Label>
                 <Select

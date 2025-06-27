@@ -8,6 +8,7 @@ import { SearchProvider } from "@/contexts/search-context";
 import { Navbar } from "@/components/navbar";
 import { Suspense } from "react";
 import AuthGuard from "@/components/auth-guard";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -41,6 +42,7 @@ export default function RootLayout({
                     </main>
                   </div>
                 </AuthGuard>
+                <Toaster /> 
               </Suspense>
             </SearchProvider>
           </ThemeProvider>
