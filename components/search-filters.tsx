@@ -54,7 +54,7 @@ export function SearchFilters() {
 
   return (
     <Card className="mb-6">
-      <CardContent className="p-4">
+      <CardContent>
         <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
           {/* Search Input */}
           <div className="relative flex-1">
@@ -182,31 +182,37 @@ export function SearchFilters() {
               </Badge>
             )}
             {filters.departments.map((dept) => (
-              <Badge
+                <Badge
                 key={dept}
                 variant="secondary"
                 className="flex items-center gap-1"
-              >
+                >
                 {dept}
-                <X
-                  className="h-3 w-3 cursor-pointer"
+                <button
+                  type="button"
                   onClick={() => handleDepartmentChange(dept, false)}
-                />
-              </Badge>
+                  className="ml-1 focus:outline-none"
+                >
+                  <X className="h-3 w-3 cursor-pointer" />
+                </button>
+                </Badge>
             ))}
             {filters.ratings.map((rating) => (
-              <Badge
+                <Badge
                 key={rating}
                 variant="secondary"
                 className="flex items-center gap-1"
-              >
+                >
                 {rating}{" "}
                 <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                <X
-                  className="h-3 w-3 cursor-pointer"
+                <button
+                  type="button"
                   onClick={() => handleRatingChange(rating, false)}
-                />
-              </Badge>
+                  className="ml-1 focus:outline-none"
+                >
+                  <X className="h-3 w-3 cursor-pointer" />
+                </button>
+                </Badge>
             ))}
           </div>
         )}
