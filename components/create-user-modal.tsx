@@ -150,7 +150,7 @@ export function CreateUserModal() {
           Create User
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[550px]">
+      <DialogContent className="sm:max-w-[550px] max-w-[95vw] w-full p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle className="text-xl">Create New Employee</DialogTitle>
           <DialogDescription>
@@ -166,7 +166,7 @@ export function CreateUserModal() {
           </Alert>
         )}{" "}
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="flex items-start gap-6">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
             <div className="relative w-24 flex-shrink-0">
               <div className="mb-2 flex justify-center">
                 <Avatar className="h-24 w-24 border-2 border-muted">
@@ -200,8 +200,8 @@ export function CreateUserModal() {
               </div>
             </div>
 
-            <div className="flex-1 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="flex-1 space-y-4 w-full">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="firstName" className="mb-2 font-medium">
                     First Name
@@ -272,7 +272,7 @@ export function CreateUserModal() {
                 )}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="age" className="mb-2 font-medium">
                     Age
@@ -296,7 +296,7 @@ export function CreateUserModal() {
                   <Label htmlFor="phone" className="mb-2 font-medium">
                     Phone
                   </Label>
-                    <Input
+                  <Input
                     id="phone"
                     value={form.phone}
                     onChange={(e) => handleInputChange("phone", e.target.value)}
@@ -305,7 +305,7 @@ export function CreateUserModal() {
                       errors.phone ? "border-red-500 ring-1 ring-red-500" : ""
                     }
                     disabled={loading || success}
-                    />
+                  />
                   {errors.phone && (
                     <p className="mt-1 text-xs text-red-500">{errors.phone}</p>
                   )}
@@ -349,20 +349,20 @@ export function CreateUserModal() {
             </div>
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4 border-t border-border">
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:space-x-2 pt-4 border-t border-border">
             <Button
               type="button"
               variant="ghost"
               onClick={() => setOpen(false)}
               disabled={loading || success}
-              className="px-4"
+              className="w-full sm:w-auto px-4"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={loading || success}
-              className="px-6"
+              className="w-full sm:w-auto px-6"
             >
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {success

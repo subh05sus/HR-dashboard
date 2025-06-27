@@ -161,7 +161,8 @@ export function SearchFilters() {
           {/* Clear Filters */}
           {hasActiveFilters && (
             <Button variant="ghost" onClick={clearFilters} className="px-3">
-              <X className="h-4 w-4" />
+              <X className="h-4 w-4 inline mr-2" />
+              <span>Clear Filters</span>
             </Button>
           )}
         </div>
@@ -182,11 +183,11 @@ export function SearchFilters() {
               </Badge>
             )}
             {filters.departments.map((dept) => (
-                <Badge
+              <Badge
                 key={dept}
                 variant="secondary"
                 className="flex items-center gap-1"
-                >
+              >
                 {dept}
                 <button
                   type="button"
@@ -195,14 +196,14 @@ export function SearchFilters() {
                 >
                   <X className="h-3 w-3 cursor-pointer" />
                 </button>
-                </Badge>
+              </Badge>
             ))}
             {filters.ratings.map((rating) => (
-                <Badge
+              <Badge
                 key={rating}
                 variant="secondary"
                 className="flex items-center gap-1"
-                >
+              >
                 {rating}{" "}
                 <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                 <button
@@ -212,7 +213,7 @@ export function SearchFilters() {
                 >
                   <X className="h-3 w-3 cursor-pointer" />
                 </button>
-                </Badge>
+              </Badge>
             ))}
           </div>
         )}
