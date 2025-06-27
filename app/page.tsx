@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserCard } from "@/components/user-card";
 import { SearchFilters } from "@/components/search-filters";
 import { useUserStore } from "@/store/useUserStore";
-import { useSearch } from "@/hooks/useSearch";
+import { useSearch } from "@/contexts/search-context";
 import { Loader2 } from "lucide-react";
 
 export default function HomePage() {

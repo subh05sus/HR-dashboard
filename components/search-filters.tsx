@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Search, Filter, X, Star } from "lucide-react";
-import { useSearch } from "@/hooks/useSearch";
+import { useSearch } from "@/contexts/search-context";
 
 const departments = ["HR", "Engineering", "Sales", "Support"];
 const ratings = [1, 2, 3, 4, 5];
@@ -72,7 +72,7 @@ export function SearchFilters() {
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className="justify-between min-w-[140px]"
+                className="justify-between min-w-[140px] bg-transparent"
               >
                 <div className="flex items-center">
                   <Filter className="mr-2 h-4 w-4" />
@@ -102,7 +102,7 @@ export function SearchFilters() {
                     />
                     <label
                       htmlFor={`dept-${department}`}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                     >
                       {department}
                     </label>
@@ -117,7 +117,7 @@ export function SearchFilters() {
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className="justify-between min-w-[120px]"
+                className="justify-between min-w-[120px] bg-transparent"
               >
                 <div className="flex items-center">
                   <Star className="mr-2 h-4 w-4" />
@@ -147,7 +147,7 @@ export function SearchFilters() {
                     />
                     <label
                       htmlFor={`rating-${rating}`}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center cursor-pointer"
                     >
                       {rating}{" "}
                       <Star className="ml-1 h-3 w-3 fill-yellow-400 text-yellow-400" />
@@ -172,10 +172,13 @@ export function SearchFilters() {
             {filters.searchTerm && (
               <Badge variant="secondary" className="flex items-center gap-1">
                 Search: &quot;{filters.searchTerm}&quot;
-                <X
-                  className="h-3 w-3 cursor-pointer"
+                <button
+                  type="button"
                   onClick={() => updateSearchTerm("")}
-                />
+                  className="ml-1 focus:outline-none"
+                >
+                  <X className="h-3 w-3 cursor-pointer" />
+                </button>
               </Badge>
             )}
             {filters.departments.map((dept) => (

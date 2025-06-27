@@ -3,7 +3,9 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { SearchProvider } from "@/contexts/search-context";
 import { Navbar } from "@/components/navbar";
+import { Suspense } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,12 +28,16 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="min-h-screen bg-background">
-            <Navbar />
-            <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-              {children}
-            </main>
-          </div>
+          <SearchProvider>
+            <Suspense fallback={<div>Loading...</div>}>
+              <div className="min-h-screen bg-background">
+                <Navbar />
+                <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+                  {children}
+                </main>
+              </div>
+            </Suspense>
+          </SearchProvider>
         </ThemeProvider>
       </body>
     </html>

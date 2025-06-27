@@ -1,5 +1,7 @@
-import { useState, useMemo } from "react";
-import { useUserStore } from "@/store/useUserStore";
+"use client";
+
+import React, { createContext, useContext, useState, useMemo } from "react";
+import { User, useUserStore } from "@/store/useUserStore";
 
 export interface SearchFilters {
   searchTerm: string;
@@ -7,7 +9,20 @@ export interface SearchFilters {
   ratings: number[];
 }
 
-export function useSearch() {
+interface SearchContextType {
+  filters: SearchFilters;
+  filteredUsers: User[];
+  updateSearchTerm: (searchTerm: string) => void;
+  updateDepartments: (departments: string[]) => void;
+  updateRatings: (ratings: number[]) => void;
+  clearFilters: () => void;
+  totalUsers: number;
+  filteredCount: number;
+}
+
+const SearchContext = createContext<SearchContextType | undefined>(undefined);
+
+export function SearchProvider({ children }: { children: React.ReactNode }) {
   const { users } = useUserStore();
   const [filters, setFilters] = useState<SearchFilters>({
     searchTerm: "",
@@ -64,14 +79,28 @@ export function useSearch() {
     });
   };
 
-  return {
-    filters,
-    filteredUsers,
-    updateSearchTerm,
-    updateDepartments,
-    updateRatings,
-    clearFilters,
-    totalUsers: users.length,
-    filteredCount: filteredUsers.length,
-  };
+  return (
+    <SearchContext.Provider
+      value={{
+        filters,
+        filteredUsers,
+        updateSearchTerm,
+        updateDepartments,
+        updateRatings,
+        clearFilters,
+        totalUsers: users.length,
+        filteredCount: filteredUsers.length,
+      }}
+    >
+      {children}
+    </SearchContext.Provider>
+  );
+}
+
+export function useSearch() {
+  const context = useContext(SearchContext);
+  if (context === undefined) {
+    throw new Error("useSearch must be used within a SearchProvider");
+  }
+  return context;
 }
