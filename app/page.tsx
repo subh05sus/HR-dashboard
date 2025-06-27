@@ -4,13 +4,18 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserCard } from "@/components/user-card";
 import { SearchFilters } from "@/components/search-filters";
+import { CreateUserModal } from "@/components/create-user-modal";
+import { Pagination } from "@/components/pagination";
 import { useUserStore } from "@/store/useUserStore";
 import { useSearch } from "@/contexts/search-context";
 import { Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
+import { useSessionPersistence } from "@/hooks/useSessionPersistence";
 
 export default function HomePage() {
+  const { session, status } = useSessionPersistence();
   const { users, setUsers } = useUserStore();
-  const { filteredUsers } = useSearch();
+  const { paginatedUsers } = useSearch();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,15 +36,14 @@ export default function HomePage() {
       }
     };
 
-    // Only fetch if we don't have users yet
-    if (users.length === 0) {
+    if (session && users.length === 0) {
       fetchUsers();
-    } else {
+    } else if (session) {
       setLoading(false);
     }
-  }, [users.length, setUsers]);
+  }, [session, users.length, setUsers]);
 
-  if (loading) {
+  if (status === "loading" || loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="flex items-center space-x-2">
@@ -66,7 +70,12 @@ export default function HomePage() {
   }
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="space-y-6"
+    >
       <div>
         <h1 className="text-3xl font-bold tracking-tight">
           Welcome to HR Dashboard
@@ -77,7 +86,12 @@ export default function HomePage() {
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+      >
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -130,20 +144,70 @@ export default function HomePage() {
             <p className="text-xs text-muted-foreground">Saved employees</p>
           </CardContent>
         </Card>
-      </div>
+      </motion.div>
 
-      <SearchFilters />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <SearchFilters />
+      </motion.div>
 
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight mb-4">
-          Employee Directory
-        </h2>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredUsers.map((user) => (
-            <UserCard key={user.id} user={user} />
-          ))}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold tracking-tight">
+            Employee Directory
+          </h2>
+          <CreateUserModal />
         </div>
-      </div>
-    </div>
+
+        {paginatedUsers.length === 0 && users.length > 0 ? (
+          <Card className="w-full max-w-md mx-auto">
+            <CardHeader className="text-center">
+              <CardTitle>No employees found</CardTitle>
+              <p className="text-muted-foreground">
+                Try adjusting your search criteria or filters.
+              </p>
+            </CardHeader>
+          </Card>
+        ) : (
+          <>
+            <motion.div
+              className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: { opacity: 0 },
+                visible: {
+                  opacity: 1,
+                  transition: {
+                    staggerChildren: 0.1,
+                  },
+                },
+              }}
+            >
+              {paginatedUsers.map((user) => (
+                <motion.div
+                  key={user.id}
+                  variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    visible: { opacity: 1, y: 0 },
+                  }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <UserCard user={user} />
+                </motion.div>
+              ))}
+            </motion.div>
+            <Pagination />
+          </>
+        )}
+      </motion.div>
+    </motion.div>
   );
 }

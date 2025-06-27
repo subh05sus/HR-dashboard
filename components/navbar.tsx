@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
+import { signOut } from "next-auth/react";
+import { useSessionPersistence } from "@/hooks/useSessionPersistence";
 import { ThemeToggle } from "./theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -23,7 +24,13 @@ const navigation = [
 
 export function Navbar() {
   const pathname = usePathname();
-  const { data: session, status } = useSession();
+  const { session, status } = useSessionPersistence();
+
+  const handleSignOut = async () => {
+    // Clear localStorage before signing out
+    localStorage.removeItem("hr-dashboard-session");
+    await signOut({ callbackUrl: "/auth/signin" });
+  };
 
   if (status === "loading") {
     return (
@@ -112,7 +119,7 @@ export function Navbar() {
                     Profile
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => signOut()}>
+                <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Sign out
                 </DropdownMenuItem>

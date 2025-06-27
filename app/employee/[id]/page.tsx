@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
@@ -12,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { AnimatedTabs } from "@/components/animated-tabs";
 import {
   ArrowLeft,
   Star,
@@ -22,8 +22,9 @@ import {
   Briefcase,
   TrendingUp,
 } from "lucide-react";
+import { motion } from "framer-motion";
 
-// Mock data generators
+// Mock data generators (same as before)
 const generateBio = (name: string) => {
   const bios = [
     `${name} is a dedicated professional with over 5 years of experience in their field. Known for exceptional problem-solving skills and team collaboration.`,
@@ -61,7 +62,6 @@ const generateProjects = () => {
 export default function EmployeeDetailPage() {
   const params = useParams();
   const { users } = useUserStore();
-  const [activeTab, setActiveTab] = useState("overview");
   const [feedback, setFeedback] = useState("");
 
   const userId = Number.parseInt(params.id as string);
@@ -122,99 +122,15 @@ export default function EmployeeDetailPage() {
 
   const handleFeedbackSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock submission
     alert("Feedback submitted successfully!");
     setFeedback("");
   };
 
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center space-x-4">
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Link>
-        </Button>
-        <h1 className="text-3xl font-bold tracking-tight">Employee Profile</h1>
-      </div>
-
-      {/* Profile Card */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row md:items-start space-y-4 md:space-y-0 md:space-x-6">
-            <Avatar className="h-24 w-24 mx-auto md:mx-0">
-              <AvatarImage
-                src={user.image || "/placeholder.svg"}
-                alt={`${user.firstName} ${user.lastName}`}
-              />
-              <AvatarFallback className="text-2xl">
-                {user.firstName[0]}
-                {user.lastName[0]}
-              </AvatarFallback>
-            </Avatar>
-
-            <div className="flex-1 text-center md:text-left">
-              <h2 className="text-2xl font-bold">
-                {user.firstName} {user.lastName}
-              </h2>
-              <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-4 mt-2">
-                <Badge className={getDepartmentColor(user.department)}>
-                  {user.department}
-                </Badge>
-                <div className="flex items-center justify-center md:justify-start space-x-1">
-                  {renderStars(user.rating)}
-                  <span className="text-sm text-muted-foreground ml-2">
-                    ({user.rating}/5)
-                  </span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 text-sm">
-                <div className="flex items-center justify-center md:justify-start space-x-2">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span>{user.email}</span>
-                </div>
-                <div className="flex items-center justify-center md:justify-start space-x-2">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  <span>{user.phone}</span>
-                </div>
-                <div className="flex items-center justify-center md:justify-start space-x-2">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span>Age: {user.age}</span>
-                </div>
-                <div className="flex items-center justify-center md:justify-start space-x-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span>New York, NY</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Tabs */}
-      <div className="border-b">
-        <nav className="-mb-px flex space-x-8">
-          {["overview", "projects", "feedback"].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`py-2 px-1 border-b-2 font-medium text-sm capitalize ${
-                activeTab === tab
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </nav>
-      </div>
-
-      {/* Tab Content */}
-      {activeTab === "overview" && (
+  const tabs = [
+    {
+      id: "overview",
+      label: "Overview",
+      content: (
         <div className="grid gap-6 md:grid-cols-2">
           <Card>
             <CardHeader>
@@ -238,8 +154,11 @@ export default function EmployeeDetailPage() {
             <CardContent>
               <div className="space-y-4">
                 {performanceHistory.map((period, index) => (
-                  <div
+                  <motion.div
                     key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
                     className="flex items-center justify-between"
                   >
                     <div>
@@ -251,15 +170,18 @@ export default function EmployeeDetailPage() {
                     <div className="flex items-center space-x-1">
                       {renderStars(period.rating)}
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </CardContent>
           </Card>
         </div>
-      )}
-
-      {activeTab === "projects" && (
+      ),
+    },
+    {
+      id: "projects",
+      label: "Projects",
+      content: (
         <Card>
           <CardHeader>
             <CardTitle>Current Projects</CardTitle>
@@ -267,8 +189,11 @@ export default function EmployeeDetailPage() {
           <CardContent>
             <div className="space-y-4">
               {projects.map((project, index) => (
-                <div
+                <motion.div
                   key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
                   className="flex items-center justify-between p-4 border rounded-lg"
                 >
                   <div>
@@ -290,20 +215,25 @@ export default function EmployeeDetailPage() {
                       {project.progress}%
                     </div>
                     <div className="w-24 bg-gray-200 rounded-full h-2 mt-1">
-                      <div
-                        className="bg-primary h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${project.progress}%` }}
+                      <motion.div
+                        className="bg-primary h-2 rounded-full"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${project.progress}%` }}
+                        transition={{ duration: 1, delay: index * 0.2 }}
                       />
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </CardContent>
         </Card>
-      )}
-
-      {activeTab === "feedback" && (
+      ),
+    },
+    {
+      id: "feedback",
+      label: "Feedback",
+      content: (
         <Card>
           <CardHeader>
             <CardTitle>Submit Feedback</CardTitle>
@@ -327,7 +257,96 @@ export default function EmployeeDetailPage() {
             </form>
           </CardContent>
         </Card>
-      )}
-    </div>
+      ),
+    },
+  ];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="space-y-6"
+    >
+      {/* Header */}
+      <div className="flex items-center space-x-4">
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Link>
+        </Button>
+        <h1 className="text-3xl font-bold tracking-tight">Employee Profile</h1>
+      </div>
+
+      {/* Profile Card */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex flex-col md:flex-row md:items-start space-y-4 md:space-y-0 md:space-x-6">
+              <Avatar className="h-24 w-24 mx-auto md:mx-0">
+                <AvatarImage
+                  src={user.image || "/placeholder.svg"}
+                  alt={`${user.firstName} ${user.lastName}`}
+                />
+                <AvatarFallback className="text-2xl">
+                  {user.firstName[0]}
+                  {user.lastName[0]}
+                </AvatarFallback>
+              </Avatar>
+
+              <div className="flex-1 text-center md:text-left">
+                <h2 className="text-2xl font-bold">
+                  {user.firstName} {user.lastName}
+                </h2>
+                <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-4 mt-2">
+                  <Badge className={getDepartmentColor(user.department)}>
+                    {user.department}
+                  </Badge>
+                  <div className="flex items-center justify-center md:justify-start space-x-1">
+                    {renderStars(user.rating)}
+                    <span className="text-sm text-muted-foreground ml-2">
+                      ({user.rating}/5)
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 text-sm">
+                  <div className="flex items-center justify-center md:justify-start space-x-2">
+                    <Mail className="h-4 w-4 text-muted-foreground" />
+                    <span>{user.email}</span>
+                  </div>
+                  <div className="flex items-center justify-center md:justify-start space-x-2">
+                    <Phone className="h-4 w-4 text-muted-foreground" />
+                    <span>{user.phone}</span>
+                  </div>
+                  <div className="flex items-center justify-center md:justify-start space-x-2">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <span>Age: {user.age}</span>
+                  </div>
+                  <div className="flex items-center justify-center md:justify-start space-x-2">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <span>New York, NY</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Animated Tabs */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <AnimatedTabs tabs={tabs} defaultTab="overview" />
+      </motion.div>
+    </motion.div>
   );
 }
